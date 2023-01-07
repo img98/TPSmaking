@@ -1,4 +1,7 @@
 #include "ShooterCharacter.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -7,6 +10,11 @@ AShooterCharacter::AShooterCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CharacterMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Character Mesh"));
+
+	AimSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Aim SpringArm"));
+	AimCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Aim Camera"));
+	//TODO ¿¬°á
+
 }
 
 // Called when the game starts or when spawned
@@ -32,7 +40,14 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AShooterCharacter::Turn);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AShooterCharacter::LookUp);
+
+	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Pressed, this, &AShooterCharacter::AimTest);
 }
+void AShooterCharacter::AimTest()
+{
+	//FTViewTarget::SetNewTarget()
+}
+
 
 void AShooterCharacter::MoveForward(float Value)
 {

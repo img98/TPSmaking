@@ -27,10 +27,16 @@ protected:
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
+
+	void AimTest();
 private:
 
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* CharacterMesh;
+	UPROPERTY(VisibleAnywhere)
+	class USpringArmComponent* AimSpringArm;
+	UPROPERTY(VisibleAnywhere)
+	class UCameraComponent* AimCamera;
 
 
 public:	
