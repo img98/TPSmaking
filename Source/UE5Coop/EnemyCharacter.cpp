@@ -45,19 +45,6 @@ void AEnemyCharacter::BeginPlay()
 	}
 }
 
-void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor == nullptr) return;
-
-	auto Character = Cast<ADrongoCharacter>(OtherActor);
-	{
-		if (Character)
-		{
-			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
-		}
-	}
-}
-
 // Called every frame
 void AEnemyCharacter::Tick(float DeltaTime)
 {
@@ -71,4 +58,18 @@ void AEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+
+	auto Character = Cast<ADrongoCharacter>(OtherActor);
+	{
+		if (Character)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
+		}
+	}
+}
+
 
