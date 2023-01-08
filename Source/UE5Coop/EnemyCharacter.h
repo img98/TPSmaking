@@ -19,6 +19,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void AgroSphereOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+		);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -30,6 +40,13 @@ private:
 	/** AI를 위한 BehaviorTree */
 	UPROPERTY(EditAnywhere, Category = "Behavior Tree", meta = (AllowPrivateAccess = "true"))
 	class UBehaviorTree* BehaviorTree;
+	
+	class AEnemyAIController* EnemyController;
+
+	FVector StartPoint;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category=Combat, meta=(AllowPrivateAccess="true"))
+	class USphereComponent* AgroSphere; //사이즈조정은 에디터에서 할것
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }

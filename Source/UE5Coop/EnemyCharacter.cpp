@@ -2,6 +2,10 @@
 
 
 #include "EnemyCharacter.h"
+#include "UE5Coop/AI/EnemyAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Components/SphereComponent.h"
+#include "DrongoCharacter.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -9,6 +13,8 @@ AEnemyCharacter::AEnemyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
+	AgroSphere->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
@@ -16,6 +22,40 @@ void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::AgroSphereOverlap);
+
+	/** Get AI Controller */
+	EnemyController = Cast<AEnemyAIController>(GetController());
+
+	StartPoint = GetActorLocation();
+	DrawDebugSphere(
+		GetWorld(),
+		StartPoint,
+		25.f,
+		12,
+		FColor::Red,
+		true
+	);
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("StartPoint"), StartPoint);
+
+		EnemyController->RunBehaviorTree(BehaviorTree);
+	}
+}
+
+void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+
+	auto Character = Cast<ADrongoCharacter>(OtherActor);
+	{
+		if (Character)
+		{
+			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
+		}
+	}
 }
 
 // Called every frame
