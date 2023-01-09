@@ -14,7 +14,9 @@ AEnemyCharacter::AEnemyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
-	AgroSphere->SetupAttachment(GetRootComponent());
+	AgroSphere->SetupAttachment(GetMesh());
+	AttackRadius = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRadius"));
+	AttackRadius->SetupAttachment(GetMesh());
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +71,17 @@ void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent
 		{
 			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
 		}
+	}
+}
+
+
+void AEnemyCharacter::AttackRadiusOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+
+	auto Character = Cast<ADrongoCharacter>(OtherActor);
+	{
+		/** TODO: 캐릭터 Enum State를 설정해 공격애니메이션 출력하고 공격함수 실행 할것 */
 	}
 }
 
