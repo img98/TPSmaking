@@ -10,20 +10,20 @@ void UDrongoAnimation::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	DrongoCharacter = Cast<ADrongoCharacter>(TryGetPawnOwner());
+	Character = Cast<ADrongoCharacter>(TryGetPawnOwner());
 }
 
 void UDrongoAnimation::NativeUpdateAnimation(float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-	if (DrongoCharacter == nullptr)
+	if (Character == nullptr)
 	{
-		DrongoCharacter = Cast<ADrongoCharacter>(TryGetPawnOwner());
+		Character = Cast<ADrongoCharacter>(TryGetPawnOwner());
 	}
-	if (DrongoCharacter == nullptr) return;
+	if (Character == nullptr) return;
 
-	bIsInAir = DrongoCharacter->GetCharacterMovement()->IsFalling();
-	bIsAccelerating = DrongoCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false;
-	bIsAiming = DrongoCharacter->GetIsAiming();
+	bIsInAir = Character->GetCharacterMovement()->IsFalling();
+	bIsAccelerating = Character->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false;
+	bIsAiming = Character->GetIsAiming();
 }

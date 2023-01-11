@@ -5,7 +5,8 @@
 #include "UE5Coop/AI/EnemyAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SphereComponent.h"
-#include "DrongoCharacter.h"
+#include "UE5Coop/Character/ShooterCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -15,8 +16,8 @@ AEnemyCharacter::AEnemyCharacter()
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetMesh());
-	AttackRadius = CreateDefaultSubobject<USphereComponent>(TEXT("AttackRadius"));
-	AttackRadius->SetupAttachment(GetMesh());
+
+	bStunned = false;
 }
 
 // Called when the game starts or when spawned
@@ -28,10 +29,6 @@ void AEnemyCharacter::BeginPlay()
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
-	if (EnemyController)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cast"));
-	}
 
 	StartPoint = GetActorLocation();
 	DrawDebugSphere(
@@ -69,7 +66,7 @@ void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent
 {
 	if (OtherActor == nullptr) return;
 
-	auto Character = Cast<ADrongoCharacter>(OtherActor);
+	auto Character = Cast<AShooterCharacter>(OtherActor);
 	{
 		if (Character)
 		{
@@ -78,15 +75,28 @@ void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent
 	}
 }
 
-
-void AEnemyCharacter::AttackRadiusOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AEnemyCharacter::GetHit(FHitResult* HitResult)
 {
-	if (OtherActor == nullptr) return;
-
-	auto Character = Cast<ADrongoCharacter>(OtherActor);
+	const float Stunned = FMath::FRandRange(0.f, 1.f);
+	if (Stunned < StunChance)
 	{
-		/** TODO: 캐릭터 Enum State를 설정해 공격애니메이션 출력하고 공격함수 실행 할것 */
+		//Stun the Enemy
+		
+		//PlayHitMontage(FName("HitReact"));
+		SetStunned(true);
+		//TODO: ABP에서 해당 애니메이션 출력끝나면 bStunned를 false로 되돌리자.
 	}
 }
 
+void AEnemyCharacter::SetStunned(bool Stunned)
+{
+	bStunned = Stunned;
 
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(
+			TEXT("Stunned"),
+			Stunned);
+	}
+	
+}
