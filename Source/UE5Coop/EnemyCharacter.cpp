@@ -16,6 +16,8 @@ AEnemyCharacter::AEnemyCharacter()
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
 	AgroSphere->SetupAttachment(GetMesh());
+	CombatRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatRangeSphere"));
+	CombatRangeSphere->SetupAttachment(GetMesh());
 
 	bStunned = false;
 }
@@ -26,6 +28,8 @@ void AEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::AgroSphereOverlap);
+	CombatRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeOverlap);
+	CombatRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeEndOverlap);
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
@@ -72,6 +76,31 @@ void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent
 		{
 			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
 		}
+	}
+}
+
+void AEnemyCharacter::CombatRangeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == nullptr) return;
+	auto Character = Cast<AShooterCharacter>(OtherActor);
+	if (Character == nullptr) return;
+
+	bInAttackRange = true;
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
+	}
+}
+void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == nullptr) return;
+	auto Character = Cast<AShooterCharacter>(OtherActor);
+	if (Character == nullptr) return;
+
+	bInAttackRange = false;
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 	}
 }
 

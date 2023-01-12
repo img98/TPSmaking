@@ -28,6 +28,22 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 		);
+	UFUNCTION()
+		void CombatRangeOverlap(
+			UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex,
+			bool bFromSweep,
+			const FHitResult& SweepResult
+		);
+	UFUNCTION()
+	void CombatRangeEndOverlap(
+			UPrimitiveComponent* OverlappedComponent,
+			AActor* OtherActor,
+			UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex
+		);
 
 	UFUNCTION(BlueprintCallable)
 	void SetStunned(bool Stunned);
@@ -49,11 +65,15 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category=Combat, meta=(AllowPrivateAccess="true"))
 	class USphereComponent* AgroSphere; //사이즈조정은 에디터에서 할것
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* CombatRangeSphere; //사이즈조정은 에디터에서 할것
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bStunned; //True when playing the 'Get Hit Animation'
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float StunChance = 0.1f; // 0~1 = 0%~100%
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bInAttackRange;
 
 
 public:
