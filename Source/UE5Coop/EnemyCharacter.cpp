@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "UE5Coop/Character/ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -30,6 +31,10 @@ void AEnemyCharacter::BeginPlay()
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::AgroSphereOverlap);
 	CombatRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeOverlap);
 	CombatRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeEndOverlap);
+
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
@@ -86,10 +91,7 @@ void AEnemyCharacter::CombatRangeOverlap(UPrimitiveComponent* OverlappedComponen
 	if (Character == nullptr) return;
 
 	bInAttackRange = true;
-	if (EnemyController)
-	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
-	}
+	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
@@ -98,10 +100,7 @@ void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedCompo
 	if (Character == nullptr) return;
 
 	bInAttackRange = false;
-	if (EnemyController)
-	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
-	}
+	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 
 void AEnemyCharacter::GetHit(FHitResult* HitResult)
@@ -123,9 +122,33 @@ void AEnemyCharacter::SetStunned(bool Stunned)
 
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(
-			TEXT("Stunned"),
-			Stunned);
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
 	}
 	
+}
+
+void AEnemyCharacter::PlayAttackMontage(FName Section, float PlayRate)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+		AnimInstance->Montage_JumpToSection(Section, AttackMontage);
+	}
+}
+
+FName AEnemyCharacter::GetRandomAttackSectionName()
+{
+	FName SectionName;
+	const int32 Section{ FMath::RandRange(1,2) };
+	switch(Section)
+	{
+		case 1:
+			SectionName = Attack1;
+			break;
+		case 2:
+			SectionName = Attack2;
+			break;
+	}
+	return SectionName;
 }
