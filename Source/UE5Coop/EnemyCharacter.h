@@ -48,6 +48,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetStunned(bool Stunned);
 
+	UFUNCTION(BlueprintCallable)
+	void PlayAttackMontage(FName Section, float PlayRate);
+	UFUNCTION(BlueprintPure)
+	FName GetRandomAttackSectionName();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -75,6 +80,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bInAttackRange;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* AttackMontage;
+	/** 모션별 AttackMontage 섹션 이름 */
+	FName Attack1 = FName(TEXT("AttackSwing"));
+	FName Attack2 = FName(TEXT("AttackSlam"));
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
