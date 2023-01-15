@@ -8,6 +8,7 @@
 #include "UE5Coop/Character/ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter()
@@ -20,6 +21,11 @@ AEnemyCharacter::AEnemyCharacter()
 	CombatRangeSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatRangeSphere"));
 	CombatRangeSphere->SetupAttachment(GetMesh());
 
+	LeftWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Left Weapon Collision"));
+	LeftWeaponCollision->SetupAttachment(GetMesh(), FName("LeftWeaponCollision"));
+	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon Collision"));
+	RightWeaponCollision->SetupAttachment(GetMesh(), FName("RightWeaponCollision"));
+
 	bStunned = false;
 }
 
@@ -31,10 +37,23 @@ void AEnemyCharacter::BeginPlay()
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::AgroSphereOverlap);
 	CombatRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeOverlap);
 	CombatRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeEndOverlap);
+	LeftWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::LeftWeaponCollisionOverlap);
+	RightWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::RightWeaponCollisionOverlap);
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+	/** Set Collision Presets for Weapon Boxes*/
+	LeftWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
@@ -103,6 +122,15 @@ void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedCompo
 	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 
+void AEnemyCharacter::LeftWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+}
+void AEnemyCharacter::RightWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+}
+
 void AEnemyCharacter::GetHit(FHitResult* HitResult)
 {
 	const float Stunned = FMath::FRandRange(0.f, 1.f);
@@ -150,5 +178,24 @@ FName AEnemyCharacter::GetRandomAttackSectionName()
 			SectionName = Attack2;
 			break;
 	}
+
 	return SectionName;
+}
+
+/** 공격 Collision 활성/비활성화. Anim Notifies에서 사용할 예정*/
+void AEnemyCharacter::ActivateLeftWeapon()
+{
+	LeftWeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly); //활성화를 위해서는 Query가 있으면 된다. Physics는 없어도 됨.
+}
+void AEnemyCharacter::DeactivateLeftWeapon()
+{
+	LeftWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+void AEnemyCharacter::ActivateRightWeapon()
+{
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+void AEnemyCharacter::DeactivateRightWeapon()
+{
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
