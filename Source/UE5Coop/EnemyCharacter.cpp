@@ -11,7 +11,12 @@
 #include "Components/BoxComponent.h"
 
 // Sets default values
-AEnemyCharacter::AEnemyCharacter()
+AEnemyCharacter::AEnemyCharacter() :
+	Attack1(TEXT("AttackSwing")),
+	Attack2(TEXT("AttackSlam")),
+	bStunned(false),
+	bCanAttack(true),
+	AttackWaitTime(4.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -25,8 +30,6 @@ AEnemyCharacter::AEnemyCharacter()
 	LeftWeaponCollision->SetupAttachment(GetMesh(), FName("LeftWeaponCollision"));
 	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon Collision"));
 	RightWeaponCollision->SetupAttachment(GetMesh(), FName("RightWeaponCollision"));
-
-	bStunned = false;
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +60,11 @@ void AEnemyCharacter::BeginPlay()
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
+
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
+	}
 
 	StartPoint = GetActorLocation();
 	DrawDebugSphere(
@@ -163,6 +171,17 @@ void AEnemyCharacter::PlayAttackMontage(FName Section, float PlayRate)
 		AnimInstance->Montage_Play(AttackMontage);
 		AnimInstance->Montage_JumpToSection(Section, AttackMontage);
 	}
+	bCanAttack = false;
+	GetWorldTimerManager().SetTimer(
+		AttackWaitTimer,
+		this,
+		&AEnemyCharacter::ResetCanAttack,
+		AttackWaitTime
+	);
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), bCanAttack);
+	}
 }
 
 FName AEnemyCharacter::GetRandomAttackSectionName()
@@ -180,6 +199,15 @@ FName AEnemyCharacter::GetRandomAttackSectionName()
 	}
 
 	return SectionName;
+}
+
+void AEnemyCharacter::ResetCanAttack()
+{
+	bCanAttack = true;
+	if (EnemyController)
+	{
+		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), bCanAttack);
+	}
 }
 
 /** 공격 Collision 활성/비활성화. Anim Notifies에서 사용할 예정*/

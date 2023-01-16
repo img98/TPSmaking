@@ -38,6 +38,7 @@ protected:
 	void PlayAttackMontage(FName Section, float PlayRate);
 	UFUNCTION(BlueprintPure)
 	FName GetRandomAttackSectionName();
+	void ResetCanAttack();
 
 	/** 공격 Collision 활성/비활성화. Anim Notifies에서 사용할 예정*/
 	UFUNCTION(BlueprintCallable)
@@ -48,7 +49,6 @@ protected:
 	void ActivateRightWeapon();
 	UFUNCTION(BlueprintCallable)
 	void DeactivateRightWeapon();
-
 
 public:	
 	// Called every frame
@@ -81,12 +81,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* AttackMontage;
 	/** 모션별 AttackMontage 섹션 이름 */
-	FName Attack1 = FName(TEXT("AttackSwing"));
-	FName Attack2 = FName(TEXT("AttackSlam"));
+	FName Attack1;
+	FName Attack2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* LeftWeaponCollision;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RightWeaponCollision;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bCanAttack;
+	FTimerHandle AttackWaitTimer;
+	UPROPERTY(EditAnywhere, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	float AttackWaitTime;
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
