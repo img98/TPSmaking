@@ -12,13 +12,11 @@
 
 // Sets default values
 AEnemyCharacter::AEnemyCharacter() :
-	Attack1(TEXT("AttackSwing")),
-	Attack2(TEXT("AttackSlam")),
 	bStunned(false),
 	bCanAttack(true),
 	AttackWaitTime(4.f)
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	AgroSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AgroSphere"));
@@ -36,7 +34,7 @@ AEnemyCharacter::AEnemyCharacter() :
 void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::AgroSphereOverlap);
 	CombatRangeSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeOverlap);
 	CombatRangeSphere->OnComponentEndOverlap.AddDynamic(this, &AEnemyCharacter::CombatRangeEndOverlap);
@@ -60,26 +58,8 @@ void AEnemyCharacter::BeginPlay()
 
 	/** Get AI Controller */
 	EnemyController = Cast<AEnemyAIController>(GetController());
-
 	if (EnemyController)
 	{
-		EnemyController->GetBlackboardComponent()->SetValueAsBool(FName("CanAttack"), true);
-	}
-
-	StartPoint = GetActorLocation();
-	DrawDebugSphere(
-		GetWorld(),
-		StartPoint,
-		25.f,
-		12,
-		FColor::Red,
-		true
-	);
-
-	if (EnemyController)
-	{
-		EnemyController->GetBlackboardComponent()->SetValueAsVector(TEXT("StartPoint"), StartPoint);
-
 		EnemyController->RunBehaviorTree(BehaviorTree);
 	}
 }
@@ -118,7 +98,6 @@ void AEnemyCharacter::CombatRangeOverlap(UPrimitiveComponent* OverlappedComponen
 	if (Character == nullptr) return;
 
 	bInAttackRange = true;
-	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
@@ -127,7 +106,6 @@ void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedCompo
 	if (Character == nullptr) return;
 
 	bInAttackRange = false;
-	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 
 void AEnemyCharacter::LeftWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -145,7 +123,7 @@ void AEnemyCharacter::GetHit(FHitResult* HitResult)
 	if (Stunned < StunChance)
 	{
 		//Stun the Enemy
-		
+
 		//PlayHitMontage(FName("HitReact"));
 		SetStunned(true);
 		//TODO: ABP에서 해당 애니메이션 출력끝나면 bStunned를 false로 되돌리자.
@@ -160,7 +138,7 @@ void AEnemyCharacter::SetStunned(bool Stunned)
 	{
 		EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("Stunned"), Stunned);
 	}
-	
+
 }
 
 void AEnemyCharacter::PlayAttackMontage(FName Section, float PlayRate)
@@ -188,14 +166,14 @@ FName AEnemyCharacter::GetRandomAttackSectionName()
 {
 	FName SectionName;
 	const int32 Section{ FMath::RandRange(1,2) };
-	switch(Section)
+	switch (Section)
 	{
-		case 1:
-			SectionName = Attack1;
-			break;
-		case 2:
-			SectionName = Attack2;
-			break;
+	case 1:
+		SectionName = Attack1;
+		break;
+	case 2:
+		SectionName = Attack2;
+		break;
 	}
 
 	return SectionName;
