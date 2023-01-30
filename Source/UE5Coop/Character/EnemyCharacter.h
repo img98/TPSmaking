@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "UE5Coop/Enums/AIState.h"
 #include "EnemyCharacter.generated.h"
 
 UCLASS()
@@ -74,10 +75,12 @@ protected:
 	class UBehaviorTree* BehaviorTree;
 	class AEnemyAIController* EnemyController;
 
+	EAIState AIState;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bStunned; //True when playing the 'Get Hit Animation'
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	float StunChance = 0.1f; // 0~1 = 0%~100%
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	bool bInAttackRange;
@@ -95,5 +98,6 @@ protected:
 
 public:
 	FORCEINLINE UBehaviorTree* GetBehaviorTree() const { return BehaviorTree; }
+	FORCEINLINE AEnemyAIController* GetEnemyController() const { return EnemyController; }
 	virtual void GetHit(FHitResult* HitResult);
 };

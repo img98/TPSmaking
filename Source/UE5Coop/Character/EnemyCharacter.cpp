@@ -9,12 +9,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "UE5Coop/Enums/AIState.h"
 
 // Sets default values
-AEnemyCharacter::AEnemyCharacter() :
-	bStunned(false),
-	bCanAttack(true),
-	AttackWaitTime(4.f)
+AEnemyCharacter::AEnemyCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,6 +26,12 @@ AEnemyCharacter::AEnemyCharacter() :
 	LeftWeaponCollision->SetupAttachment(GetMesh(), FName("LeftWeaponCollision"));
 	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon Collision"));
 	RightWeaponCollision->SetupAttachment(GetMesh(), FName("RightWeaponCollision"));
+
+	// default values
+	bStunned = false;
+	bCanAttack = true;
+	AttackWaitTime = 4.f;
+	AIState = EAIState::EAIS_Chasing;
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +91,7 @@ void AEnemyCharacter::AgroSphereOverlap(UPrimitiveComponent* OverlappedComponent
 		if (Character)
 		{
 			EnemyController->GetBlackboardComponent()->SetValueAsObject(TEXT("AgroTarget"), Character);
+			AIState = EAIState::EAIS_Chasing;
 		}
 	}
 }
@@ -98,6 +103,7 @@ void AEnemyCharacter::CombatRangeOverlap(UPrimitiveComponent* OverlappedComponen
 	if (Character == nullptr) return;
 
 	bInAttackRange = true;
+	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
@@ -106,6 +112,7 @@ void AEnemyCharacter::CombatRangeEndOverlap(UPrimitiveComponent* OverlappedCompo
 	if (Character == nullptr) return;
 
 	bInAttackRange = false;
+	EnemyController->GetBlackboardComponent()->SetValueAsBool(TEXT("InAttackRange"), bInAttackRange);
 }
 
 void AEnemyCharacter::LeftWeaponCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

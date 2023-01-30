@@ -4,6 +4,8 @@
 #include "EnemyAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "EnemyCharacter.h"
+#include "UE5Coop/AI/EnemyAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UEnemyAnimInstance::NativeInitializeAnimation()
