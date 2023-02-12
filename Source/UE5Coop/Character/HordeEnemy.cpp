@@ -31,7 +31,7 @@ void AHordeEnemy::BeginPlay()
 	}
 
 	StartPoint = GetActorLocation();
-	DrawDebugSphere(
+	/** DrawDebugSphere(
 		GetWorld(),
 		StartPoint,
 		25.f,
@@ -39,6 +39,7 @@ void AHordeEnemy::BeginPlay()
 		FColor::Red,
 		true
 	);
+	*/
 
 	if (EnemyController)
 	{

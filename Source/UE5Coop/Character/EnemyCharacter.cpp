@@ -181,6 +181,9 @@ FName AEnemyCharacter::GetRandomAttackSectionName()
 	case 2:
 		SectionName = Attack2;
 		break;
+
+	default:
+		SectionName = Attack1;
 	}
 
 	return SectionName;
