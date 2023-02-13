@@ -10,12 +10,12 @@
  * 
  */
 UCLASS()
-class UE5COOP_API AEnemyAIController : public AAIController
+class UE5COOP_API AEnemyAIController : public AAIController 
 {
 	GENERATED_BODY()
 	
 public:
-	AEnemyAIController();
+	AEnemyAIController(const FObjectInitializer& ObjectInitializer);
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:

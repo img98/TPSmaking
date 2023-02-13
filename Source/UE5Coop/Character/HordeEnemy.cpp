@@ -109,7 +109,7 @@ void AHordeEnemy::GetHit(FHitResult* HitResult)
 FName AHordeEnemy::GetRandomAttackSectionName()
 {
 	FName SectionName;
-	const int32 Section{ FMath::RandRange(1,2) };OK
+	const int32 Section{ FMath::RandRange(1,2) };
 	switch (Section)
 	{
 	case 1:
